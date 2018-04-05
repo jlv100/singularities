@@ -34,7 +34,7 @@ From: ubuntu:16.04
     conda install -y -c r r-base
     conda list > R.packages
     conda list --explicit > R.spec
-    R -e 'write.table(installed.packages(),quote=FALSE,sep="\\t")' > R.Rpackages
+    R -e "write.table(installed.packages(),quote=FALSE,sep='    ')" > R.Rpackages
    
 %apprun R
     export PATH=/opt/miniconda2/bin:$PATH
