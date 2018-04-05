@@ -1,0 +1,64 @@
+BootStrap: docker
+From: ubuntu:16.04
+
+%post
+    apt-get update && apt-get install -y \
+        gcc \
+        wget \
+        bzip2
+        
+    wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
+    sh Miniconda2-latest-Linux-x86_64.sh -b -p /opt/miniconda2
+    export PATH=/opt/miniconda2/bin:$PATH
+    conda update -y -n base conda
+    conda install -y scipy numpy
+    
+    conda list > conda.packages
+    conda list --explicit > conda.spec
+
+%environment
+    export PATH=/opt/miniconda2/bin:$PATH
+    export XDG_RUNTIME_DIR=
+
+%runscript
+    conda info
+    
+%appinstall R
+    export PATH=/opt/miniconda2/bin:$PATH
+    apt-get install -y \
+        libsm6 \
+        libxt6 \
+        libcairo2-dev \
+        locales
+    locale-gen "en_US.UTF-8"
+    conda install -y -c r r-base
+    conda list > R.packages
+    conda list --explicit > R.spec
+    R -e 'write.table(installed.packages(),quote=FALSE,sep="\\t")' > R.Rpackages
+   
+%apprun R
+    export PATH=/opt/miniconda2/bin:$PATH
+    export XDG_RUNTIME_DIR=
+    R
+
+%apphelp R
+    Anaconda's R-base
+
+%appinstall jupyter
+    export PATH=/opt/miniconda2/bin:$PATH
+    conda install -y jupyter matplotlib nb_conda r-irkernel
+    mkdir -p /tmp/notebooks
+    chmod 777 /tmp/notebooks
+    conda list > jupyter.packages
+    conda list --explicit > jupyter.spec
+   
+%apprun jupyter
+    export PATH=/opt/miniconda2/bin:$PATH
+    export XDG_RUNTIME_DIR=
+    jupyter notebook --allow-root --no-browser --notebook-dir=/tmp/notebooks --ip='*' "$@"
+
+%apphelp jupyter
+    Start a Jupyter notebook server, open to external connections, serving notebooks from /tmp/notebooks
+   
+   
+   
