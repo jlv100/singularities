@@ -1,6 +1,9 @@
 BootStrap: docker
 From: ubuntu:16.04
 
+%files
+    write_specs.sh /usr/bin/
+
 %post
     apt-get update && apt-get install -y \
         gcc \
@@ -13,8 +16,7 @@ From: ubuntu:16.04
     conda update -y -n base conda
     conda install -y scipy numpy
     
-    conda list > conda.packages
-    conda list --explicit > conda.spec
+    write_specs.sh
 
 %environment
     export PATH=/opt/miniconda2/bin:$PATH
@@ -32,9 +34,8 @@ From: ubuntu:16.04
         locales
     locale-gen "en_US.UTF-8"
     conda install -y -c r r-base
-    conda list > R.packages
-    conda list --explicit > R.spec
-    R -e "write.table(installed.packages(),quote=FALSE,sep='    ')" > R.Rpackages
+    
+    write_specs.sh
    
 %apprun R
     export PATH=/opt/miniconda2/bin:$PATH
@@ -49,16 +50,16 @@ From: ubuntu:16.04
     conda install -y jupyter matplotlib nb_conda r-irkernel
     mkdir -p /tmp/notebooks
     chmod 777 /tmp/notebooks
-    conda list > jupyter.packages
-    conda list --explicit > jupyter.spec
+    
+    write_specs.sh
    
 %apprun jupyter
     export PATH=/opt/miniconda2/bin:$PATH
     export XDG_RUNTIME_DIR=
-    jupyter notebook --allow-root --no-browser --notebook-dir=/tmp/notebooks --ip='*' "$@"
+    jupyter notebook --no-browser --ip='*' "$@"
 
 %apphelp jupyter
-    Start a Jupyter notebook server, open to external connections, serving notebooks from /tmp/notebooks
+    Start a Jupyter notebook server, open to external connections, serving notebooks from PWD
    
    
    
